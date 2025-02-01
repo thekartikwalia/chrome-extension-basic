@@ -5,10 +5,38 @@
 const bookmarkImgURL = chrome.runtime.getURL("assets/bookmark.png");
 const AZ_PROBLEM_KEY = "AZ_PROBLEM_KEY";
 
-// Waits for the page to fully load before executing the script
-window.addEventListener("load", addBookmarkButton);
+// Mutation observer is observing any changes that are happening inside our body,
+// including children and entire subtree of that body 
+// If any changes occurs, it executes this addBookmarkButton() function
+const observer = new MutationObserver(() => {
+  addBookmarkButton();
+})
+observer.observe(document.body, {childList: true, subtree:true});
 
+// We've to execute our addBookmarkButton() on script load as well 
+// 1 time we need to execute this for consistency purposes 
+// So that it never misses, even if it does not run Mutation observer 
+// After that any change in our webpage, any part of the content that 
+// is getting changed would trigger this function 
+addBookmarkButton();
+
+function onProblemsPage() {
+  return window.location.pathname.startsWith('/problems/');
+}
+
+// We're changing something on /problems/
+// It was triggering MutationObserver (bcoz of we adding that particular element)
+// and that change was trigerring another change, 
+// and it went into an Recursive cycle of infinite loop 
+// On problems page it's not returning, 
+// it's trying to add element again n again on every change
+// But we don't want that, we only want it to add if it's not present already
 function addBookmarkButton() {
+  console.log("Triggering");
+  // If we're not on problems page, then simply return
+  // Bcoz we're giving access to every webpage on maang to content.js
+  if(!onProblemsPage() || document.getElementById("add-bookmark-button")) return;
+
   // Create a new bookmark button as an image element
   const bookmarkButton = document.createElement("img");
   bookmarkButton.id = "add-bookmark-button";

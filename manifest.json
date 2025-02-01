@@ -7,7 +7,7 @@
   "permissions": ["storage", "tabs"],
   "content_scripts": [
     {
-      "matches": ["https://maang.in/problems/*"],
+      "matches": ["https://maang.in/*"],
       "js": ["content.js"]
     }
   ],
